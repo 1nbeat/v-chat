@@ -4,6 +4,8 @@
 
 演示地址：https://chat.arifun.com
 
+<img width="1855" height="1050" alt="image" src="https://github.com/user-attachments/assets/f7aa2131-10f4-4716-8d9d-1595b161d559" />
+
 | 项目开发人 | 漆原 |
 | --- | --- |
 | 开发时间 | 2026-07-31 15:16:47 CST |
