@@ -1,0 +1,17 @@
+{
+  "name": "ai-chat",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A lightweight AI chat interface with a secure server-side API proxy.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "openai": "^7.1.0"
+  }
+}

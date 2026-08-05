@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f8fa" />
+    <title>唯心 VChat · 对话</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar" aria-label="会话列表">
+        <div class="brand"><div class="brand-mark">✦</div><div><strong>唯心 VChat</strong><span>你的灵感伙伴</span></div></div>
+        <button class="new-chat" id="newChat"><span>＋</span> 开启新对话</button>
+        <button id="settings" class="side-nav-item" type="button" title="设置"><span>⚙</span>设置</button>
+        <div class="history-label">单聊</div>
+        <div id="recentBots" class="history"></div>
+        <div class="history-label history-duo-label">机器人对聊</div>
+        <div id="recentDuoChats" class="history"></div>
+        <div class="sidebar-foot"><div id="userAvatar" class="avatar">Q</div><div><strong id="userNickname">访客用户</strong><span id="modelLabel">模型：默认模型</span></div></div>
+      </aside>
+      <section class="chat-panel">
+        <header class="chat-header"><div class="chat-contact"><div id="chatContactAvatarInfo" class="chat-contact-avatar-info"><div class="chat-contact-avatar">✦</div><div id="chatPersonaTooltip" class="persona-tooltip" role="tooltip"></div></div><div><strong id="chatTitle">唯心 VChat</strong><span id="chatSignature">你的灵感伙伴</span></div></div><div class="connection"><i></i> 在线服务</div><span id="duoRemaining" class="duo-remaining" aria-live="polite" hidden></span><button id="continueDuo" class="continue-duo" type="button" hidden>继续对聊</button><button id="stopDuo" class="stop-duo" type="button" hidden>停止对聊</button><button id="mobileSettings" class="icon-button mobile-settings" type="button" title="设置" aria-label="设置">⚙</button><button id="clearChat" class="clear-button" type="button" title="清空当前记录"><span class="clear-symbol"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M6 7l1 13h10l1-13M9 7V4h6v3M10 11v5M14 11v5" /></svg></span><span class="clear-label"><span class="desktop-clear-label">清空当前记录</span><span class="mobile-clear-label">清空记录</span></span></button></header>
+        <div id="messages" class="messages" aria-live="polite">
+          <div class="welcome"><div class="welcome-icon">✦</div><h1>你好，我是唯心 VChat</h1><p>今天想聊点什么？我可以帮你整理思路、解答问题，或只是陪你说说话。</p><div class="suggestions"><button data-prompt="帮我制定一个高效的学习计划">制定学习计划 <span>↗</span></button><button data-prompt="给我推荐几本值得一读的书">推荐几本好书 <span>↗</span></button><button data-prompt="用通俗的方式解释量子纠缠">解释一个概念 <span>↗</span></button></div></div>
+        </div>
+        <div class="composer-wrap"><form id="composer" class="composer"><textarea id="input" rows="1" placeholder="输入你想说的话…" aria-label="消息内容"></textarea><div class="composer-actions"><span class="hint">Enter 发送 · Shift + Enter 换行</span><button id="send" class="send-button" type="submit" title="发送消息">↑</button></div></form><div class="disclaimer">AI 可能会犯错，请核实重要信息</div></div>
+      </section>
+    </main>
+    <div id="settingsMenu" class="settings-menu" hidden><button type="button" data-settings-action="profile"><span>◉</span>个人信息</button><button type="button" data-settings-action="bots"><span>✦</span>机器人管理</button><button type="button" data-settings-action="model"><span>◇</span>自定义模型</button><button type="button" data-settings-action="global"><span>⚙</span>全局设置</button><button type="button" data-settings-action="reset"><span class="menu-icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.9-4L3 9M3 4v5h5M4 13a8 8 0 0 0 14.9 4L21 15M21 20v-5h-5" /></svg></span>重置本地数据</button></div>
+    <div id="botManager" class="dialog-backdrop" hidden>
+      <section class="bot-dialog" role="dialog" aria-modal="true" aria-labelledby="botManagerTitle">
+        <header class="dialog-header"><div><span class="dialog-kicker">机器人管理</span><h2 id="botManagerTitle">我的聊天机器人</h2></div><button id="closeBotManager" class="close-button" type="button" title="关闭" aria-label="关闭">×</button></header>
+        <div class="bot-layout">
+          <aside class="bot-list-pane"><div class="pane-title"><span>机器人</span><button id="addBot" class="add-bot" type="button" title="新建机器人" aria-label="新建机器人"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg></button></div><div id="botList" class="bot-list"></div></aside>
+          <form id="botForm" class="bot-editor" novalidate>
+            <label class="prompt-label" for="botName">机器人名称</label><input id="botName" class="bot-name-input" maxlength="30" required placeholder="例如：小唯" />
+            <label class="prompt-label" for="botSignature">个性签名</label><input id="botSignature" class="bot-name-input" maxlength="60" placeholder="例如：陪你把想法变成答案" />
+            <div class="bot-avatar-row"><div id="botAvatarPreview" class="bot-avatar-preview">未</div><div><label class="secondary-button upload-avatar-button" for="botAvatarInput">选择头像</label><input id="botAvatarInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden><button id="removeBotAvatar" class="text-button" type="button">移除头像</button><p class="profile-avatar-hint">支持 PNG、JPG、WebP、GIF，文件不超过 1MB。</p></div></div>
+            <label class="preset-toggle" for="usePersonalityPreset"><input id="usePersonalityPreset" type="checkbox" checked /><span></span><strong>使用预设人格</strong></label>
+            <div id="presetFields"><label class="prompt-label" for="personalityPreset">预设人格</label><select id="personalityPreset" class="personality-select"></select><label class="prompt-label" for="generatedPrompt">自动生成的系统提示词</label><textarea id="generatedPrompt" class="prompt-editor generated-prompt" rows="8" readonly></textarea></div>
+            <label id="botPromptLabel" class="prompt-label" for="botNotes">补充设定（可选）</label><textarea id="botNotes" class="notes-editor" rows="3" maxlength="1600" placeholder="例如：不要暴露任何模型相关信息"></textarea>
+            <footer class="dialog-actions"><button id="deleteBot" class="danger-button" type="button">删除机器人</button><button class="primary-button" type="submit">保存</button></footer>
+          </form>
+        </div>
+      </section>
+    </div>
+    <div id="botPicker" class="dialog-backdrop" hidden>
+      <section class="picker-dialog" role="dialog" aria-modal="true" aria-labelledby="botPickerTitle">
+        <header class="dialog-header"><div><span class="dialog-kicker">开启新对话</span><h2 id="botPickerTitle">选择聊天机器人</h2></div><button id="closeBotPicker" class="close-button" type="button" title="关闭" aria-label="关闭">×</button></header>
+        <button id="openDuoFromPicker" class="duo-picker-button" type="button"><span>↔</span><div><strong>机器人对聊</strong><small>选择两位机器人，让它们围绕话题交流</small></div></button>
+        <div id="botPickerList" class="bot-picker-list"></div>
+      </section>
+    </div>
+    <div id="globalSettings" class="dialog-backdrop" hidden>
+      <section class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="globalSettingsTitle">
+        <header class="dialog-header"><div><span class="dialog-kicker">全局设置</span><h2 id="globalSettingsTitle">全局设置</h2></div><button id="closeGlobalSettings" class="close-button" type="button" title="关闭" aria-label="关闭">×</button></header>
+        <p class="global-prompt-description">会在每个聊天机器人的专属提示词之前发送。</p>
+        <label class="prompt-label" for="globalPrompt">全局规则</label><textarea id="globalPrompt" class="prompt-editor" rows="10" maxlength="6000" placeholder="例如：不要暴露任何模型相关信息。"></textarea>
+        <label class="preset-toggle render-markdown-toggle" for="renderMarkdown"><input id="renderMarkdown" type="checkbox" checked /><span></span><strong>解析并渲染 AI 回复</strong></label>
+        <div class="duo-settings-grid">
+          <label class="duo-setting" for="duoMaxTurns"><span>每次自动对话轮数</span><div><input id="duoMaxTurns" type="number" min="1" max="100" step="1" inputmode="numeric"><small>轮</small></div></label>
+          <label class="duo-setting" for="duoTotalTurns"><span>单会话总轮次上限</span><div><input id="duoTotalTurns" type="number" min="1" max="100" step="1" inputmode="numeric"><small>轮</small></div></label>
+          <label class="duo-setting" for="duoIntervalSeconds"><span>响应间隔</span><div><input id="duoIntervalSeconds" type="number" min="0" max="60" step="0.1" inputmode="decimal"><small>秒</small></div></label>
+        </div>
+        <footer class="dialog-actions"><button id="saveGlobalPrompt" class="primary-button" type="button">保存设置</button></footer>
+      </section>
+    </div>
+    <div id="modelSettings" class="dialog-backdrop" hidden>
+      <section class="bot-dialog model-dialog" role="dialog" aria-modal="true" aria-labelledby="modelSettingsTitle">
+        <header class="dialog-header"><div><span class="dialog-kicker">自定义模型</span><h2 id="modelSettingsTitle">我的模型配置</h2></div><button id="closeModelSettings" class="close-button" type="button" title="关闭" aria-label="关闭">×</button></header>
+        <div class="bot-layout">
+          <aside class="bot-list-pane model-list-pane"><div class="pane-title"><span>模型</span><button id="addModel" class="add-bot" type="button" title="新增模型" aria-label="新增模型"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg></button></div><button id="useDefaultModel" class="model-default-button" type="button"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.9-4L3 9M3 4v5h5" /></svg><span>项目默认配置</span><small>.env</small></button><div id="modelList" class="bot-list"></div></aside>
+          <form id="modelForm" class="bot-editor" novalidate>
+            <label class="prompt-label" for="modelProfileName">配置名称</label><input id="modelProfileName" class="bot-name-input" maxlength="40" required autocomplete="off" placeholder="例如：我的 OpenAI" />
+            <label class="prompt-label" for="modelApiUrl">API 地址</label><input id="modelApiUrl" class="bot-name-input" type="url" maxlength="500" autocomplete="off" placeholder="留空使用项目默认 API 地址" />
+            <label class="prompt-label" for="modelApiKey">API Key</label><input id="modelApiKey" class="bot-name-input" type="password" maxlength="500" autocomplete="off" placeholder="留空使用项目默认 API Key" />
+            <label class="prompt-label" for="modelName">模型名称</label><input id="modelName" class="bot-name-input" maxlength="160" autocomplete="off" placeholder="留空使用项目默认模型" />
+            <p id="modelEditorHint" class="model-editor-hint"></p>
+            <footer class="dialog-actions"><button id="deleteModel" class="danger-button" type="button">删除模型</button><button class="primary-button" type="submit">保存并使用</button></footer>
+          </form>
+        </div>
+      </section>
+    </div>
+    <div id="profileSettings" class="dialog-backdrop" hidden>
+      <section class="profile-dialog" role="dialog" aria-modal="true" aria-labelledby="profileSettingsTitle">
+        <header class="dialog-header"><div><span class="dialog-kicker">个人信息</span><h2 id="profileSettingsTitle">我的资料</h2></div><button id="closeProfileSettings" class="close-button" type="button" title="关闭" aria-label="关闭">×</button></header>
+        <div class="profile-avatar-row"><div id="profileAvatarPreview" class="profile-avatar-preview">Q</div><div><label class="secondary-button upload-avatar-button" for="profileAvatarInput">选择头像</label><input id="profileAvatarInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden><button id="removeProfileAvatar" class="text-button" type="button">移除头像</button><p class="profile-avatar-hint">支持 PNG、JPG、WebP、GIF，文件不超过 1MB。</p></div></div>
+        <label class="prompt-label" for="profileNickname">昵称</label><input id="profileNickname" class="bot-name-input" maxlength="30" placeholder="例如：小青" />
+        <footer class="dialog-actions"><button id="saveProfile" class="primary-button" type="button">保存资料</button></footer>
+      </section>
+    </div>
+    <div id="duoDialog" class="dialog-backdrop" hidden>
+      <section class="picker-dialog" role="dialog" aria-modal="true" aria-labelledby="duoTitle">
+        <header class="dialog-header"><div><span class="dialog-kicker">机器人对聊</span><h2 id="duoTitle">让两个机器人开始对话</h2></div><button id="closeDuoDialog" class="close-button" type="button" title="关闭" aria-label="关闭">×</button></header>
+        <form id="duoForm" class="duo-form">
+          <label class="prompt-label" for="duoFirstBot">机器人 A</label><select id="duoFirstBot" class="personality-select"></select>
+          <label class="prompt-label" for="duoSecondBot">机器人 B</label><select id="duoSecondBot" class="personality-select"></select>
+          <label class="prompt-label" for="duoTopic">对话主题</label><textarea id="duoTopic" class="notes-editor" rows="4" maxlength="3000" placeholder="例如：请围绕人工智能如何改善日常学习展开交流。"></textarea>
+          <p id="duoHint" class="duo-hint">可在全局设置中调整响应间隔和轮数上限；可随时停止。</p>
+          <footer class="dialog-actions"><button id="cancelDuo" class="secondary-button" type="button">取消</button><button id="startDuo" class="primary-button" type="submit">开始对聊</button></footer>
+        </form>
+      </section>
+    </div>
+    <div id="continueDuoDialog" class="dialog-backdrop" hidden>
+      <section class="continue-duo-dialog" role="dialog" aria-modal="true" aria-labelledby="continueDuoTitle">
+        <header class="dialog-header"><div><span class="dialog-kicker">继续机器人对聊</span><h2 id="continueDuoTitle">追加对话轮数</h2></div><button id="closeContinueDuoDialog" class="close-button" type="button" title="关闭" aria-label="关闭">×</button></header>
+        <form id="continueDuoForm" class="continue-duo-form"><label class="prompt-label" for="continueDuoTurns">本次追加轮数</label><input id="continueDuoTurns" class="bot-name-input" type="number" min="1" max="100" step="1" inputmode="numeric" required><p id="continueDuoHint" class="duo-hint"></p><footer class="dialog-actions"><button id="cancelContinueDuo" class="secondary-button" type="button">取消</button><button class="primary-button" type="submit">继续对聊</button></footer></form>
+      </section>
+    </div>
+    <div id="confirmDialog" class="dialog-backdrop" hidden>
+      <section class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+        <header class="dialog-header"><div><span class="dialog-kicker">请确认操作</span><h2 id="confirmTitle">确认操作</h2></div><button id="closeConfirmDialog" class="close-button" type="button" title="关闭" aria-label="关闭">×</button></header>
+        <p id="confirmMessage" class="confirm-message"></p>
+        <footer class="dialog-actions confirm-actions"><button id="cancelConfirm" class="secondary-button" type="button">取消</button><button id="acceptConfirm" class="danger-button" type="button">确认</button></footer>
+      </section>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
